@@ -44,107 +44,164 @@ print(cut_list[0])
 
 def get_training_sample(path_to_data, event_names):
 
-    events = []
-    track_id = 0
+	events = []
+	track_id = 0
 
-    for name in event_names:
+	for name in event_names:
 
-        # Read an event
-        hits, cells, particles, truth = load_event(os.path.join(path_to_data, name))
+		# Read an event
+		hits, cells, particles, truth = load_event(os.path.join(path_to_data, name))
 
-        # Generate new vector of particle id
-        particle_ids = truth.particle_id.values
-        particle2track = {}
-        for pid in np.unique(particle_ids):
-            particle2track[pid] = track_id
-            track_id += 1
-        hits['particle_id'] = [particle2track[pid] for pid in particle_ids]
+		# Generate new vector of particle id
+		particle_ids = truth.particle_id.values
+		particle2track = {}
+		for pid in np.unique(particle_ids):
+			particle2track[pid] = track_id
+			track_id += 1
+		hits['particle_id'] = [particle2track[pid] for pid in particle_ids]
 
-        # Collect hits
-        events.append(hits)
+		# Collect hits
+		events.append(hits)
 
-    # Put all hits into one sample with unique tracj ids
-    data = pd.concat(events, axis=0)
+	# Put all hits into one sample with unique tracj ids
+	data = pd.concat(events, axis=0)
 
-    return data
+	return data
 
 train_data = get_training_sample(path_to_train, cut_list)
 
 print(train_data.info())
 
 class Clusterer(object):
-    
-    def __init__(self):
-        self.classifier = None
+	
+	def __init__(self):
+		self.classifier = None
 #         self.model = None
-    
-    def _preprocess(self, hits):
-        
-        x = hits.x.values
-        y = hits.y.values
-        z = hits.z.values
+	
+	def _preprocess(self, hits):
+		
+		x = hits.x.values
+		y = hits.y.values
+		z = hits.z.values
 
-        r = np.sqrt(x**2 + y**2 + z**2)
-        hits['x2'] = x/r
-        hits['y2'] = y/r
-        hits['z2'] = z/r
+		r = np.sqrt(x**2 + y**2 + z**2)
+		hits['x2'] = x/r
+		hits['y2'] = y/r
+		hits['z2'] = z/r
 
-        ss = StandardScaler()
-        X = ss.fit_transform(hits[['x2', 'y2', 'z2']].values)
-        
-        return X
-    def model(self):
-        model = Sequential()
-        model.add(Dense(12,
-                    input_dim=3,
-                    kernel_initializer='uniform',
-                    activation='relu'))
-        model.add(Dense(8,kernel_initializer='uniform',activation='relu'))
-        model.add(Dense(1,kernel_initializer='uniform',activation='sigmoid'))
-        
-        
-        
-        
-        optimizer = RMSprop(lr=0.001, rho=0.9, epsilon=1e-08, decay=0.0)
+		ss = StandardScaler()
+		X = ss.fit_transform(hits[['x2', 'y2', 'z2']].values)
+		
+		return X
+	def model(self):
+		model = Sequential()
+		model.add(Dense(12,
+					input_dim=3,
+					kernel_initializer='uniform',
+					activation='relu'))
+		model.add(Dense(8,kernel_initializer='uniform',activation='relu'))
+		model.add(Dense(1,kernel_initializer='uniform',activation='sigmoid'))
+		
+		
+		
+		
+		optimizer = RMSprop(lr=0.001, rho=0.9, epsilon=1e-08, decay=0.0)
 
-        model.compile(optimizer = optimizer , loss = "mean_squared_error", metrics=["accuracy"])
-        # Save model
-        model_json = model.to_json()
-        with open("model.json", "w") as json_file:
-            json_file.write(model_json)
+		model.compile(optimizer = optimizer , loss = "mean_squared_error", metrics=["accuracy"])
+		# Save model
+		model_json = model.to_json()
+		with open("model.json", "w") as json_file:
+			json_file.write(model_json)
 
-        self.classifier = model
-    
-    
-    def fit(self, hits):
-        X = self._preprocess(hits)
-        y = hits.particle_id.values
+		self.classifier = model
+	
+	
+	def fit(self, hits):
+		X = self._preprocess(hits)
+		y = hits.particle_id.values
 #       y_binary = to_categorical(y)
-        
-        X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.33, random_state=42)
-        
-        print('X shape[0]:', X_train.shape[0])
-        print('X len: ', len(X))
-        print('X dim:', X.ndim)
+		
+		X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.33, random_state=42)
+		
+		print('X shape[0]:', X_train.shape[0])
+		print('X len: ', len(X))
+		print('X dim:', X.ndim)
 #         print('')
 #         self.classifier = KNeighborsClassifier(n_neighbors=1, n_jobs=-1)
 #         self.classifier.fit(X, y)
-        self.model()
-        checkpointer = ModelCheckpoint(filepath='weights.hdf5', verbose=1, save_best_only=True)
-        self.classifier.fit(X_train, y_train, epochs=100, validation_data = (X_val, y_val), callbacks = [checkpointer])
-        
-    
-    def predict(self, hits):
-        
-        X = self._preprocess(hits)
-        labels = self.classifier.predict(X)
-        
+		self.model()
+		checkpointer = ModelCheckpoint(filepath='weights.hdf5', verbose=1, save_best_only=True)
+		self.classifier.fit(X_train, y_train, epochs=1, validation_data = (X_val, y_val), callbacks = [checkpointer])
+		
+	
+	def predict(self, hits):
+		
+		X = self._preprocess(hits)
+		labels = self.classifier.predict(X)
+		
 #         predictions = self.classifier.predict(X)
 #         print(type(predictions))
 #         np.save('predictions',predictions)
 #         predictions.save('predictions.npz')
-    
-        return labels
+	
+		return labels
 model = Clusterer()
 model.fit(train_data)
 
+
+labels = model.predict(hits)
+
+print(labels)
+
+def create_one_event_submission(event_id, hits, labels):
+	sub_data = np.column_stack(([event_id]*len(hits), hits.hit_id.values, labels))
+	submission = pd.DataFrame(data=sub_data, columns=["event_id", "hit_id", "track_id"]).astype(int)
+	return submission
+
+submission = create_one_event_submission(0, hits, labels)
+score = score_event(truth, submission)
+
+print("Your score: ", score)
+
+load_dataset(path_to_train, skip=1000, nevents=5)
+
+dataset_submissions = []
+dataset_scores = []
+
+for event_id, hits, cells, particles, truth in load_dataset(path_to_train, skip=1000, nevents=5):
+		
+	# Track pattern recognition
+	labels = model.predict(hits)
+		
+	# Prepare submission for an event
+	one_submission = create_one_event_submission(event_id, hits, labels)
+	dataset_submissions.append(one_submission)
+	
+	# Score for the event
+	score = score_event(truth, one_submission)
+	dataset_scores.append(score)
+	
+	print("Score for event %d: %.3f" % (event_id, score))
+	
+print('Mean score: %.3f' % (np.mean(dataset_scores)))
+
+path_to_test = "../input/test"
+test_dataset_submissions = []
+
+create_submission = False # True for submission 
+
+if create_submission:
+    for event_id, hits, cells in load_dataset(path_to_test, parts=['hits', 'cells']):
+
+        # Track pattern recognition
+        labels = model.predict(hits)
+
+        # Prepare submission for an event
+        one_submission = create_one_event_submission(event_id, hits, labels)
+        test_dataset_submissions.append(one_submission)
+        
+        print('Event ID: ', event_id)
+
+    # Create submission file
+    submission = pd.concat(test_dataset_submissions, axis=0)
+    submission.to_csv('submission.csv.gz', index=False, compression='gzip')
