@@ -68,7 +68,7 @@ def get_training_sample(path_to_data, event_names):
 
 	return data
 
-train_data = get_training_sample(path_to_train, cut_list)
+train_data = get_training_sample(path_to_train, cut_list[:10])
 
 print(train_data.info())
 
@@ -107,7 +107,7 @@ class Clusterer(object):
 		
 		optimizer = RMSprop(lr=0.001, rho=0.9, epsilon=1e-08, decay=0.0)
 
-		model.compile(optimizer = optimizer , loss = "mean_squared_error", metrics=["accuracy"])
+		model.compile(optimizer = optimizer , loss = "mse", metrics=["accuracy"])
 		# Save model
 		model_json = model.to_json()
 		with open("model.json", "w") as json_file:
@@ -149,7 +149,7 @@ model = Clusterer()
 model.fit(train_data)
 
 
-labels = model.predict(hits)
+# labels = model.predict(hits)
 
 print(labels)
 
