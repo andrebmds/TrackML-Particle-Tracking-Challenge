@@ -21,6 +21,9 @@ from keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPool2D
 from keras.optimizers import RMSprop
 from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import ReduceLROnPlateau, ModelCheckpoint
+from keras.utils import plot_model
+from IPython.display import SVG
+from keras.utils.vis_utils import model_to_dot
 
 
 from sklearn.preprocessing import MultiLabelBinarizer
@@ -68,7 +71,7 @@ def get_training_sample(path_to_data, event_names):
 
 	return data
 
-train_data = get_training_sample(path_to_train, cut_list[:10])
+train_data = get_training_sample(path_to_train, cut_list)
 
 print(train_data.info())
 
@@ -93,22 +96,44 @@ class Clusterer(object):
 		X = ss.fit_transform(hits[['x2', 'y2', 'z2']].values)
 		
 		return X
+
 	def model(self):
 		model = Sequential()
 		model.add(Dense(12,
 					input_dim=3,
 					kernel_initializer='uniform',
 					activation='relu'))
+		model.add(Dropout(0.5))
 		model.add(Dense(8,kernel_initializer='uniform',activation='relu'))
+		model.add(Dropout(0.5))
 		model.add(Dense(1,kernel_initializer='uniform',activation='sigmoid'))
 		
-		
+		# model.add(Conv2D(32,(3,3),padding='same',input_shape=x_train.shape[1:]))  model.add(Activation('relu'))
+		# model.add(Conv2D(32,(3,3)))
+		# model.add(Activation('relu'))
+		# model.add(MaxPooling2D(pool_size=(2,2)))
+		# model.add(Dropout(0.25))
+		# model.add(Conv2D(64,(3,3), padding='same'))
+		# model.add(Activation('relu'))
+		# model.add(Conv2D(64,(3, 3)))
+		# model.add(Activation('relu'))
+		# model.add(MaxPooling2D(pool_size=(2,2)))
+		# model.add(Dropout(0.25))
+		# model.add(Flatten())
+		# model.add(Dense(512))
+		# model.add(Activation('relu'))
+		# model.add(Dropout(0.5))
+		# model.add(Dense(num_classes))
+		# model.add(Activation('softmax'))
 		
 		
 		optimizer = RMSprop(lr=0.001, rho=0.9, epsilon=1e-08, decay=0.0)
 
 		model.compile(optimizer = optimizer , loss = "mse", metrics=["accuracy"])
 		# Save model
+		# plot_model(model, to_file='model.png')
+		# SVG(model_to_dot(model).create(prog='dot', format='svg'))
+		
 		model_json = model.to_json()
 		with open("model.json", "w") as json_file:
 			json_file.write(model_json)
@@ -119,7 +144,6 @@ class Clusterer(object):
 	def fit(self, hits):
 		X = self._preprocess(hits)
 		y = hits.particle_id.values
-#       y_binary = to_categorical(y)
 		
 		X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.33, random_state=42)
 		
@@ -131,7 +155,7 @@ class Clusterer(object):
 #         self.classifier.fit(X, y)
 		self.model()
 		checkpointer = ModelCheckpoint(filepath='weights.hdf5', verbose=1, save_best_only=True)
-		self.classifier.fit(X_train, y_train, epochs=1, validation_data = (X_val, y_val), callbacks = [checkpointer])
+		self.classifier.fit(X_train, y_train, epochs=50, validation_data = (X_val, y_val), callbacks = [checkpointer])
 		
 	
 	def predict(self, hits):
@@ -148,9 +172,8 @@ class Clusterer(object):
 model = Clusterer()
 model.fit(train_data)
 
-
-# labels = model.predict(hits)
-
+hits, cells, particles, truth = load_event(os.path.join(path_to_train, cut_list[11]))
+labels = model.predict(hits)
 print(labels)
 
 def create_one_event_submission(event_id, hits, labels):
