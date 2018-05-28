@@ -1,13 +1,11 @@
 from keras.models import Sequential
-from keras.layers import Activation, Dense, Dropout, Conv2D, MaxPooling2D, Flatten
+from keras.layers import Activation, Dense, Dropout, Conv2D, MaxPooling2D, Flatten, Embedding, LSTM
+# from keras.klayers import Embedding,LSTM
 
-
+# Chosse a model 
 class Generate_Models():
 	def __init__(self):
 		self.model = None
-
-	def sequential_model(self):
-		pass
 
 	def mlp_binary_classification(self, input_dim = 3, output_dim = 1):
 		model = Sequential()
@@ -19,7 +17,7 @@ class Generate_Models():
 		model.add(Dense(8, kernel_initializer='uniform',activation='relu'))
 		model.add(Dense(output_dim, kernel_initializer='uniform',activation='sigmoid'))
 
-		print(model.summary())
+		self.check_model(model)
 		return model
 
 	def mlp_multi_class_classification(self,input_shape=(784,), output_dim=10):
@@ -30,16 +28,18 @@ class Generate_Models():
 		model.add(Dense(512, activation='relu'))
 		model.add(Dense(output_dim, activation='softmax'))
 
-		print(model.summary())
+		self.check_model(model)
 		return model
+
 	def regression(self, input_dim=3):
 		model = Sequential()
 
 		model.add(Dense(64, activation='relu', input_dim=input_dim))
 		model.add(Dense(1))
 
-		print(model.summary())
+		self.check_model(model)
 		return model
+
 	def convolutional_neural_network(self, input_shape = (10,), num_classes=10):
 		model = Sequential()
 
@@ -64,13 +64,30 @@ class Generate_Models():
 		model.add(Dense(num_classes))
 		model.add(Activation('softmax'))
 
-		print(model.summary())
+		self.check_model(model)
 		return model
+
+	def recurrent_neural_network(self):
+		model = Sequential()
+
+		model.add(Embedding(20000,128))
+		model.add(LSTM(129, dropout=0.2, recurrent_dropout=0.2))
+		model.add(Dense(1, activation='sigmoid'))
+
+		self.check_model(model)
+		return model
+
+	def check_model(self, model):
+		print('------check_model------')
+		print('\n\nOutput shape: ', model.output_shape)
+		print(model.summary())
+		# print(model.get_config())
+		# print(model.get_weights())
 
 if __name__ == '__main__':
 	model = Generate_Models()
 	# model.mlp_binary_classification(input_dim=3, output_dim=1)
 	# model.mlp_multi_class_classification(input_shape=(10,), output_dim=1)
 	# model.regression(inputdim=3)
-	model.convolutional_neural_network(input_shape=(64,64,3), num_classes=10)
-
+	# model.convolutional_neural_network(input_shape=(64,64,3), num_classes=10)
+	model.recurrent_neural_network()
