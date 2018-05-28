@@ -1,6 +1,12 @@
 from keras.models import Sequential
-from keras.layers import Activation, Dense, Dropout, Conv2D, MaxPooling2D, Flatten, Embedding, LSTM
-# from keras.klayers import Embedding,LSTM
+from keras.layers import Activation,
+						 Dense,
+						 Dropout, 
+						 Conv2D, 
+						 MaxPooling2D, 
+						 Flatten, 
+						 Embedding, 
+						 LSTM
 
 # Chosse a model 
 class Generate_Models():
@@ -79,10 +85,36 @@ class Generate_Models():
 
 	def check_model(self, model):
 		print('------check_model------')
-		print('\n\nOutput shape: ', model.output_shape)
+		print('nnOutput shape: ', model.output_shape)
 		print(model.summary())
 		# print(model.get_config())
 		# print(model.get_weights())
+
+class SetUpModel():
+	def __init__(self):
+		self.model = Sequential()
+		pass
+
+	def preprocessing(self):
+		pass
+
+	def model_architecture(self):
+		pass
+
+	def compile(self):
+		pass
+
+	def training(self):
+		pass
+
+	def evaluate(self):
+		pass
+
+	def prediction(self):
+		pass
+
+
+
 
 if __name__ == '__main__':
 	model = Generate_Models()

@@ -51,7 +51,7 @@ def get_training_sample(path_to_data, event_names):
 	track_id = 0
 
 	for name in event_names:
-
+		print(name)
 		# Read an event
 		hits, cells, particles, truth = load_event(os.path.join(path_to_data, name))
 
@@ -65,7 +65,6 @@ def get_training_sample(path_to_data, event_names):
 
 		# Collect hits
 		events.append(hits)
-
 	# Put all hits into one sample with unique tracj ids
 	data = pd.concat(events, axis=0)
 
@@ -79,7 +78,6 @@ class Clusterer(object):
 	
 	def __init__(self):
 		self.classifier = None
-#         self.model = None
 	
 	def _preprocess(self, hits):
 		
@@ -133,7 +131,7 @@ class Clusterer(object):
 		# Save model
 		# plot_model(model, to_file='model.png')
 		# SVG(model_to_dot(model).create(prog='dot', format='svg'))
-		
+
 		model_json = model.to_json()
 		with open("model.json", "w") as json_file:
 			json_file.write(model_json)
@@ -145,17 +143,18 @@ class Clusterer(object):
 		X = self._preprocess(hits)
 		y = hits.particle_id.values
 		
-		X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.33, random_state=42)
+		# X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.33, random_state=42)
 		
-		print('X shape[0]:', X_train.shape[0])
-		print('X len: ', len(X))
-		print('X dim:', X.ndim)
-#         print('')
-#         self.classifier = KNeighborsClassifier(n_neighbors=1, n_jobs=-1)
-#         self.classifier.fit(X, y)
-		self.model()
-		checkpointer = ModelCheckpoint(filepath='weights.hdf5', verbose=1, save_best_only=True)
-		self.classifier.fit(X_train, y_train, epochs=50, validation_data = (X_val, y_val), callbacks = [checkpointer])
+		# print('X shape[0]:', X_train.shape[0])
+		# print('X len: ', len(X))
+		# print('X dim:', X.ndim)
+		# print('')
+		self.classifier = KNeighborsClassifier(n_neighbors=1, n_jobs=-1)
+		self.classifier.fit(X, y)
+
+		# self.model()
+		# checkpointer = ModelCheckpoint(filepath='weights.hdf5', verbose=1, save_best_only=True)
+		# self.classifier.fit(X_train, y_train, epochs=50, validation_data = (X_val, y_val), callbacks = [checkpointer])
 		
 	
 	def predict(self, hits):
@@ -163,10 +162,10 @@ class Clusterer(object):
 		X = self._preprocess(hits)
 		labels = self.classifier.predict(X)
 		
-#         predictions = self.classifier.predict(X)
-#         print(type(predictions))
-#         np.save('predictions',predictions)
-#         predictions.save('predictions.npz')
+	    # predictions = self.classifier.predict(X)
+	    # print(type(predictions))
+	     # np.save('predictions',predictions)
+	    # predictions.save('predictions.npz')
 	
 		return labels
 model = Clusterer()
@@ -208,10 +207,10 @@ for event_id, hits, cells, particles, truth in load_dataset(path_to_train, skip=
 	
 print('Mean score: %.3f' % (np.mean(dataset_scores)))
 
-path_to_test = "../input/test"
+path_to_test = "input/test"
 test_dataset_submissions = []
 
-create_submission = False # True for submission 
+create_submission = True # True for submission 
 
 if create_submission:
     for event_id, hits, cells in load_dataset(path_to_test, parts=['hits', 'cells']):
