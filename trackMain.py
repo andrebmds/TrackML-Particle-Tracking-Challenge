@@ -50,7 +50,7 @@ def get_training_sample(path_to_data, event_names):
 	events = []
 	track_id = 0
 
-	for name in event_names:
+	for name in event_nameks:
 		print(name)
 		# Read an event
 		hits, cells, particles, truth = load_event(os.path.join(path_to_data, name))
