@@ -6,7 +6,7 @@ dna_json = "{\"deviceSignature\":{\"collector\": \"iOS\",\"collectorVersion\": \
 
 dna = json.loads(dna_json)
 
-# Transform dna to DataFrame
+# Transform dna to DataFrame by fatten the json
 dna_dict = {}
 def readDNA(file_read, key=''):
 	if isinstance(file_read,dict):
@@ -26,7 +26,20 @@ print('---------')
 row_dna = {}
 def populate_df_dna():
 	key = 'file'
-	if isinstance(st, object):
-		pd.util.testing.rands(10)		
+	if isinstance(st, str):
+		pd.util.testing.rands(10)
+	elif isinstance(st, bool):
+		pass
 
 print(pd.util.testing.rands(10))
+
+
+
+
+# Pre-processing
+
+# Classifier
+
+# Train
+
+# Predict
