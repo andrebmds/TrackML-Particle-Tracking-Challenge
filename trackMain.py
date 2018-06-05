@@ -43,14 +43,14 @@ cut_list = np.array([list_of_events[i][0:14] for i in range(len(list_of_events))
 cut_list = np.unique(cut_list)
 print('Len cut_list: ',len(cut_list))
 print(cut_list[0])
-
+	
 
 def get_training_sample(path_to_data, event_names):
 
 	events = []
 	track_id = 0
 
-	for name in event_nameks:
+	for name in event_names:
 		print(name)
 		# Read an event
 		hits, cells, particles, truth = load_event(os.path.join(path_to_data, name))
@@ -168,12 +168,14 @@ class Clusterer(object):
 	    # predictions.save('predictions.npz')
 	
 		return labels
+
 model = Clusterer()
 model.fit(train_data)
 
 hits, cells, particles, truth = load_event(os.path.join(path_to_train, cut_list[11]))
 labels = model.predict(hits)
 print(labels)
+
 
 def create_one_event_submission(event_id, hits, labels):
 	sub_data = np.column_stack(([event_id]*len(hits), hits.hit_id.values, labels))

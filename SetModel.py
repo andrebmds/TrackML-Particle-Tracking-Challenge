@@ -85,11 +85,16 @@ class Generate_Models():
 		# print(model.get_weights())
 
 class SetUpModel():
-	def __init__(self):
+	def __init__(self, X= None, y= None):
 		self.model = Sequential()
-
-	def preprocessing(self, X = None, y = None):
-		self.X_train, self.X_val, self.y_train, self.y_val = train_test_split(X, y, test_size=0.33, random_state=42)
+		self.preprocessing()
+		self.model_architecture()
+		self.compile()
+		self.training()
+		return self.model
+		
+	def preprocessing(self):
+		self.X_train, self.X_val, self.y_train, self.y_val = train_test_split(self.X, self.y, test_size=0.33, random_state=42)
 
 	def model_architecture(self):
 		self.model = Generate_Models()
@@ -100,7 +105,7 @@ class SetUpModel():
 		self.model.compile(optimizer = optimizer , loss = "mse", metrics=["accuracy"])
 
 	def training(self):
-		checkpointer = ModessssssssslCheckpoint(filepath='weights.hdf5', verbose=1, save_best_only=True)
+		checkpointer = ModelCheckpoint(filepath='weights.hdf5', verbose=1, save_best_only=True)
 		self.model.fit(self.X_train, self.y_train, epochs=50, validation_data = (self.X_val, self.y_val), callbacks = [checkpointer])
 
 	def evaluate(self):

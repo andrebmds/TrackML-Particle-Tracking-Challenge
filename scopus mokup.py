@@ -34,6 +34,10 @@ def populate_df_dna():
 print(pd.util.testing.rands(10))
 
 
-
+for row in range(0,10000):
+	# create random values:
+	# for 
+	pass
+	
 
 
