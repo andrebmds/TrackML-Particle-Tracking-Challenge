@@ -1,12 +1,6 @@
 from keras.models import Sequential
-from keras.layers import Activation,
-						 Dense,
-						 Dropout, 
-						 Conv2D, 
-						 MaxPooling2D, 
-						 Flatten, 
-						 Embedding, 
-						 LSTM
+from keras.layers import Activation, Dense, Dropout, Conv2D, MaxPooling2D, Flatten, Embedding, LSTM
+from sklearn.model_selection import train_test_split
 
 # Chosse a model 
 class Generate_Models():
@@ -93,19 +87,21 @@ class Generate_Models():
 class SetUpModel():
 	def __init__(self):
 		self.model = Sequential()
-		pass
 
-	def preprocessing(self):
-		pass
+	def preprocessing(self, X = None, y = None):
+		self.X_train, self.X_val, self.y_train, self.y_val = train_test_split(X, y, test_size=0.33, random_state=42)
 
 	def model_architecture(self):
-		pass
+		self.model = Generate_Models()
+		self.mlp_binary_classification()
 
 	def compile(self):
-		pass
+		optimizer = RMSprop(lr=0.001, rho=0.9, epsilon=1e-08, decay=0.0)
+		self.model.compile(optimizer = optimizer , loss = "mse", metrics=["accuracy"])
 
 	def training(self):
-		pass
+		checkpointer = ModessssssssslCheckpoint(filepath='weights.hdf5', verbose=1, save_best_only=True)
+		self.model.fit(self.X_train, self.y_train, epochs=50, validation_data = (self.X_val, self.y_val), callbacks = [checkpointer])
 
 	def evaluate(self):
 		pass
@@ -123,3 +119,5 @@ if __name__ == '__main__':
 	# model.regression(inputdim=3)
 	# model.convolutional_neural_network(input_shape=(64,64,3), num_classes=10)
 	model.recurrent_neural_network()
+
+	SetUpModel()

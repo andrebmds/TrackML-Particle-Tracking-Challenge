@@ -36,10 +36,4 @@ print(pd.util.testing.rands(10))
 
 
 
-# Pre-processing
 
-# Classifier
-
-# Train
-
-# Predict
