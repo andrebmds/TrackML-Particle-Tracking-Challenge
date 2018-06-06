@@ -1,5 +1,6 @@
 import numpy as np 
 
+import datetime
 from keras.models import Sequential
 from keras.optimizers import RMSprop
 from sklearn.model_selection import train_test_split
@@ -135,21 +136,44 @@ class SetUpModel():
 		self.model.compile(optimizer = optimizer , loss = "mse", metrics=["accuracy"])
 
 	def training(self):
-		checkpointer = ModelCheckpoint(filepath='weights.hdf5', 
+		print(datetime.datetime.today())
+		file_name = 'weights' + str(datetime.datetime.today()).replace('.','_') + '.hdf5'
+		checkpointer = ModelCheckpoint(filepath=file_name, 
 										verbose=1, 
 										save_best_only=True)
-		self.model.fit(self.X_train,
-					   self.y_train, 
-					   epochs=100, 
-					   validation_data = (self.X_val, self.y_val), 
-					   callbacks = [checkpointer])
+		# self.model.fit(self.X_train,
+		# 			   self.y_train, 
+		# 			   epochs=100, 
+		# 			   validation_data = (self.X_val, self.y_val), 
+		# 			   callbacks = [checkpointer])
+		# model.fit_generator(generator(features, labels, batch_size), samples_per_epoch=50, nb_epoch=10)
+		self.model.fit_generator(self.generator.(self.X_train, self.y_train, 3).flow,steps_per_epoch=3, epochs=3, use_multiprocessing=True)
+								# steps_per_epoch=3,
+								# epochs=3,
+								# validation_data= self.generator(self.X_val, self.y_val, 3),
+								# callbacks = [checkpointer])
+
+	def generator(self, features, labels, batch_size):
+
+		batch_features = np.zeros((batch_size, features.shape[features.ndim - 1])) #len of input, (shape of input)
+		batch_labels = np.zeros((batch_size, 1))
+
+		while True:
+			for i in range(batch_size):
+				index =  np.random.choice(len(features), 1)
+				batch_features[i] = features[index]
+				# batch_features[i] = some_processing(features[index])
+				batch_labels[i] = labels[index]
+				
+				print('generator yielded a batch %d' % i)
+
+			return batch_features, batch_labels
 
 	def evaluate(self):
 		pass
 
 	def prediction(self):
 		pass
-
 
 
 
@@ -166,5 +190,5 @@ if __name__ == '__main__':
 	
 	X_np = np.array(X)
 	y_np = np.array(y)
-
+	print(X_np)
 	SetUpModel(X= X_np, y= y_np)
