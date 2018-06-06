@@ -1,6 +1,10 @@
+import numpy as np 
+
 from keras.models import Sequential
-from keras.layers import Activation, Dense, Dropout, Conv2D, MaxPooling2D, Flatten, Embedding, LSTM
+from keras.optimizers import RMSprop
 from sklearn.model_selection import train_test_split
+from keras.callbacks import ReduceLROnPlateau, ModelCheckpoint
+from keras.layers import Activation, Dense, Dropout, Conv2D, MaxPooling2D, Flatten, Embedding, LSTM
 
 # Chosse a model 
 class Generate_Models():
@@ -86,27 +90,59 @@ class Generate_Models():
 
 class SetUpModel():
 	def __init__(self, X= None, y= None):
-		self.model = Sequential()
+		self.X = X
+		self.y = y
+
+		self.get_info()
+		
 		self.preprocessing()
 		self.model_architecture()
 		self.compile()
 		self.training()
-		return self.model
+
+
+	def get_info(self):
+		if isinstance(self.X, np.ndarray):
+			print('valid format')
+		else:
+			raise ValueError('Invalid Format for input')
+		if isinstance(self.y, np.ndarray):
+			print('valid format')
+		else:
+			raise ValueError('Invalid Format for outoput')
+
+		self.ndim_X = self.X.ndim
+		self.shape_X = self.X.shape[self.ndim_X-1]
+		
+		self.ndim_y = self.y.ndim
+		self.shape_y = self.y.shape[self.ndim_y-1]
+
+		print('ndim_y:', self.ndim_y)
+
+		print('shape:', self.y.shape)
 		
 	def preprocessing(self):
-		self.X_train, self.X_val, self.y_train, self.y_val = train_test_split(self.X, self.y, test_size=0.33, random_state=42)
+		self.X_train, self.X_val, self.y_train, self.y_val = train_test_split(self.X, 
+																				self.y, 
+																				test_size=0.33, 
+																				random_state=42)
 
 	def model_architecture(self):
-		self.model = Generate_Models()
-		self.mlp_binary_classification()
+		self.model = Generate_Models().mlp_binary_classification(input_dim = self.shape_X, output_dim = self.y.ndim)
 
 	def compile(self):
 		optimizer = RMSprop(lr=0.001, rho=0.9, epsilon=1e-08, decay=0.0)
 		self.model.compile(optimizer = optimizer , loss = "mse", metrics=["accuracy"])
 
 	def training(self):
-		checkpointer = ModelCheckpoint(filepath='weights.hdf5', verbose=1, save_best_only=True)
-		self.model.fit(self.X_train, self.y_train, epochs=50, validation_data = (self.X_val, self.y_val), callbacks = [checkpointer])
+		checkpointer = ModelCheckpoint(filepath='weights.hdf5', 
+										verbose=1, 
+										save_best_only=True)
+		self.model.fit(self.X_train,
+					   self.y_train, 
+					   epochs=100, 
+					   validation_data = (self.X_val, self.y_val), 
+					   callbacks = [checkpointer])
 
 	def evaluate(self):
 		pass
@@ -118,11 +154,17 @@ class SetUpModel():
 
 
 if __name__ == '__main__':
-	model = Generate_Models()
+	# model = Generate_Models()
 	# model.mlp_binary_classification(input_dim=3, output_dim=1)
 	# model.mlp_multi_class_classification(input_shape=(10,), output_dim=1)
 	# model.regression(inputdim=3)
 	# model.convolutional_neural_network(input_shape=(64,64,3), num_classes=10)
-	model.recurrent_neural_network()
+	# model.recurrent_neural_network()
+	X = [(1,2),(1,2),(1,2),(1,2),(1,2),(1,2),(1,2),(1,2),(1,2)]
+	y = [10,20,30,40,50,60,70,80,90]
+	# obs need to be a numpy
+	
+	X_np = np.array(X)
+	y_np = np.array(y)
 
-	SetUpModel()
+	SetUpModel(X= X_np, y= y_np)

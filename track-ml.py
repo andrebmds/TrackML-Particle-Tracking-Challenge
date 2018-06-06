@@ -74,7 +74,7 @@ def _preprocess(hits):
 		
 		return X
 
-train_data = get_training_sample(path_to_train, cut_list)
+train_data = get_training_sample(path_to_train, cut_list[:3])
 print(train_data.head())
 print(train_data.info())
 
@@ -83,7 +83,7 @@ y = train_data.particle_id.values
 
 print(type(X))
 print('Len: ',len(X))
-print('Shape: ',X.shape)
+print('Shape: ',X.shape[1])
 print('dim: ',X.ndim)
 print('Size: ',X.size)
 
@@ -93,7 +93,6 @@ print('Size: ',X.size)
 # ax.scatter(X[:,0],X[:,1],X[:,2])
 # pyplot.show()
 
-model = SetModel.SetUpModel(X=x,y=y)
-
+model = SetModel.SetUpModel(X= X, y= y)
 
 
