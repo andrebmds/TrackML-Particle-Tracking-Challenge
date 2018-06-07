@@ -147,7 +147,7 @@ class SetUpModel():
 		# 			   validation_data = (self.X_val, self.y_val), 
 		# 			   callbacks = [checkpointer])
 		# model.fit_generator(generator(features, labels, batch_size), samples_per_epoch=50, nb_epoch=10)
-		self.model.fit_generator(self.generator.(self.X_train, self.y_train, 3).flow,steps_per_epoch=3, epochs=3, use_multiprocessing=True)
+		self.model.flow(self.generato(self.X_train, self.y_train, 3).flow,steps_per_epoch=3, epochs=3, use_multiprocessing=True)
 								# steps_per_epoch=3,
 								# epochs=3,
 								# validation_data= self.generator(self.X_val, self.y_val, 3),
