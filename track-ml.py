@@ -74,7 +74,7 @@ def _preprocess(hits):
 		
 		return X
 
-train_data = get_training_sample(path_to_train, cut_list[:3])
+train_data = get_training_sample(path_to_train, cut_list)
 print(train_data.head())
 print(train_data.info())
 

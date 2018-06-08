@@ -146,8 +146,7 @@ class SetUpModel():
 		# 			   epochs=100, 
 		# 			   validation_data = (self.X_val, self.y_val), 
 		# 			   callbacks = [checkpointer])
-		# model.fit_generator(generator(features, labels, batch_size), samples_per_epoch=50, nb_epoch=10)
-		self.model.flow(self.generato(self.X_train, self.y_train, 3).flow,steps_per_epoch=3, epochs=3, use_multiprocessing=True)
+		self.model.fit_generator(self.generator(self.X_train, self.y_train, 3), steps_per_epoch=3, epochs=3, use_multiprocessing=True)
 								# steps_per_epoch=3,
 								# epochs=3,
 								# validation_data= self.generator(self.X_val, self.y_val, 3),
@@ -167,7 +166,7 @@ class SetUpModel():
 				
 				print('generator yielded a batch %d' % i)
 
-			return batch_features, batch_labels
+			yield batch_features, batch_labels
 
 	def evaluate(self):
 		pass
