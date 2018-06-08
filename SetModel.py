@@ -90,9 +90,11 @@ class Generate_Models():
 		# print(model.get_weights())
 
 class SetUpModel():
-	def __init__(self, X= None, y= None):
+	def __init__(self, X= None, y= None, batch = 5):
 		self.X = X
 		self.y = y
+
+		self.batch = batch
 
 		self.get_info()
 		
@@ -141,17 +143,22 @@ class SetUpModel():
 		checkpointer = ModelCheckpoint(filepath=file_name, 
 										verbose=1, 
 										save_best_only=True)
+
+
 		# self.model.fit(self.X_train,
 		# 			   self.y_train, 
 		# 			   epochs=100, 
 		# 			   validation_data = (self.X_val, self.y_val), 
 		# 			   callbacks = [checkpointer])
-		self.model.fit_generator(self.generator(self.X_train, self.y_train, 3), steps_per_epoch=3, epochs=3, use_multiprocessing=True)
-								# steps_per_epoch=3,
-								# epochs=3,
-								# validation_data= self.generator(self.X_val, self.y_val, 3),
-								# callbacks = [checkpointer])
+		
+		# batch = 5
+		steps_per_epoch = int(len(self.X) / self.batch)
 
+		self.model.fit_generator(self.generator(self.X_train, self.y_train, self.batch),
+								 steps_per_epoch=steps_per_epoch,
+								 epochs=3,
+								 use_multiprocessing=True)
+	
 	def generator(self, features, labels, batch_size):
 
 		batch_features = np.zeros((batch_size, features.shape[features.ndim - 1])) #len of input, (shape of input)
@@ -164,7 +171,7 @@ class SetUpModel():
 				# batch_features[i] = some_processing(features[index])
 				batch_labels[i] = labels[index]
 				
-				print('generator yielded a batch %d' % i)
+				# print('generator yielded a batch %d' % i)
 
 			yield batch_features, batch_labels
 
@@ -190,4 +197,4 @@ if __name__ == '__main__':
 	X_np = np.array(X)
 	y_np = np.array(y)
 	print(X_np)
-	SetUpModel(X= X_np, y= y_np)
+	SetUpModel(X= X_np, y= y_np, batch=5)

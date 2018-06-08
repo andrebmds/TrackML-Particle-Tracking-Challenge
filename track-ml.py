@@ -82,10 +82,10 @@ X = _preprocess(train_data)
 y = train_data.particle_id.values
 
 print(type(X))
-print('Len: ',len(X))
-print('Shape: ',X.shape[1])
-print('dim: ',X.ndim)
-print('Size: ',X.size)
+print('Len: ', len(X))
+print('Shape: ', X.shape[1])
+print('dim: ', 	 X.ndim)
+print('Size: ',  X.size)
 
 # PLOT SCATTER 3D
 # fig = pyplot.figure()
@@ -93,6 +93,6 @@ print('Size: ',X.size)
 # ax.scatter(X[:,0],X[:,1],X[:,2])
 # pyplot.show()
 
-model = SetModel.SetUpModel(X= X, y= y)
+model = SetModel.SetUpModel(X= X, y= y, batch=50)
 
 
