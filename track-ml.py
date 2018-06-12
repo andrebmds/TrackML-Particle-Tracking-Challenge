@@ -20,8 +20,8 @@ from sklearn.preprocessing import StandardScaler
 
 
 # PATH FILES FOR INPUT
-path_to_train = 'input/train_100_events'
-path_to_train = 'input/train_100_events'
+# path_to_train = 'input/train_100_events'
+path_to_train = 'input/train_3'
 list_of_events = os.listdir(path_to_train)
 print('Len path_to_train: ',len(list_of_events))
 print('Name:', list_of_events[0])
@@ -74,6 +74,12 @@ def _preprocess(hits):
 		
 		return X
 
+
+def create_one_event_submission(event_id, hits, labels):
+	sub_data = np.column_stack(([event_id]*len(hits), hits.hit_id.values, labels))
+	submission = pd.DataFrame(data=sub_data, columns=["event_id", "hit_id", "track_id"]).astype(int)
+	return submission
+
 train_data = get_training_sample(path_to_train, cut_list)
 print(train_data.head())
 print(train_data.info())
@@ -94,5 +100,19 @@ print('Size: ',  X.size)
 # pyplot.show()
 
 model = SetModel.SetUpModel(X= X, y= y, batch=50)
+
+# MAKE PREDICTION
+# READ FILE FOR SUBMITION
+# X_sub = 
+hits, cells, particles, truth = load_event(os.path.join(path_to_train, cut_list[11]))
+
+X_predict = _preprocess(X)
+labels = model.predict(X_predict)
+
+submission = create_one_event_submission(0, hits, labels)
+score = score_event(truth, submission)
+
+
+
 
 

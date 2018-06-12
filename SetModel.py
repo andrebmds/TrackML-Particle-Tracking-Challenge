@@ -177,9 +177,12 @@ class SetUpModel():
 
 	def evaluate(self):
 		pass
-
-	def prediction(self):
-		pass
+	# def predict(hits):
+	# X = _preprocess(hits)
+	# labels = model.predict(X)
+	
+	def predict(self, X):
+		return self.model.predict(X)
 
 
 
