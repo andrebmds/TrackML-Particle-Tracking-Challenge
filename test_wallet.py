@@ -70,6 +70,17 @@ class WalletTestCase(unittest.TestCase):
 
 		self.assertEqual(total, 0.5, 'Is\'n {} return correct value'.format(total))
 
+	def testOpenAndCloseSeveralTimes():
+		wallet_main = walletDB.Wallet(name_of_wallet='wallet_test.csv')
+		wallet_main.make_deposit(amount = -5, coin = 'BTC')
+		wallet_main2 = walletDB.Wallet(name_of_wallet='wallet_test.csv')
+		wallet_main2.make_deposit(amount = -5, coin = 'BTC')
+		wallet_main3 = walletDB.Wallet(name_of_wallet='wallet_test.csv')
+		wallet_main3.make_deposit(amount = -5, coin = 'BTC')
+
+		total = wallet_main3.getTotalAmount('BTC')
+		self.assertEqual(total, -15, 'Is\'n {} return correct value'.format(total))
+
 
 if __name__ == '__main__':
 	# run all TestCase's in this module

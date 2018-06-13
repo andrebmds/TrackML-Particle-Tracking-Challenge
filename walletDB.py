@@ -15,8 +15,9 @@ class Wallet():
 		if os.path.exists(self.wallet_path):
 			self.loadHistory()
 		else:
-			wallet_columns = ['date', 'coin', 'amount']
-			self.wallet = pd.DataFrame(columns = wallet_columns)
+			wallet_columns = ['coin', 'amount']
+			wallet_index = ['date']
+			self.wallet = pd.DataFrame(columns = wallet_columns, index=wallet_index)
 			self.saveHistory()
 
 	def make_deposit(self, date = datetime.datetime.today(), amount = 0, coin = 'BTC'):
