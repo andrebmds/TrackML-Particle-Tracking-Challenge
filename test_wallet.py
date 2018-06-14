@@ -70,16 +70,42 @@ class WalletTestCase(unittest.TestCase):
 
 		self.assertEqual(total, 0.5, 'Is\'n {} return correct value'.format(total))
 
-	def testOpenAndCloseSeveralTimes():
+	def testOpenAndCloseSeveralTimes(self):
 		wallet_main = walletDB.Wallet(name_of_wallet='wallet_test.csv')
-		wallet_main.make_deposit(amount = -5, coin = 'BTC')
-		wallet_main2 = walletDB.Wallet(name_of_wallet='wallet_test.csv')
-		wallet_main2.make_deposit(amount = -5, coin = 'BTC')
-		wallet_main3 = walletDB.Wallet(name_of_wallet='wallet_test.csv')
-		wallet_main3.make_deposit(amount = -5, coin = 'BTC')
+		wallet_main.make_deposit(amount = 5, coin = 'BTC')
+		del wallet_main
 
+		wallet_main2 = walletDB.Wallet(name_of_wallet='wallet_test.csv')
+		wallet_main2.make_deposit(amount = 5, coin = 'BTC')
+		del wallet_main2
+
+		wallet_main3 = walletDB.Wallet(name_of_wallet='wallet_test.csv')
+		wallet_main3.make_deposit(amount = 5, coin = 'BTC')
+		# print(wallet_main3.wallet)
 		total = wallet_main3.getTotalAmount('BTC')
-		self.assertEqual(total, -15, 'Is\'n {} return correct value'.format(total))
+		self.assertEqual(total, 15, 'Is\'n {} return correct value'.format(total))
+
+	def testListOfCoins(self):
+		wallet_main = walletDB.Wallet(name_of_wallet='wallet_test.csv')
+		wallet_main.make_deposit(amount = 5, coin = 'BTC')
+		wallet_main.make_deposit(amount = 5, coin = 'LTC')
+		self.assertEqual(set(wallet_main.showCoins()), set(['BTC','LTC']), 'Output of cois is different of expept')
+
+	def testReadMultipleCoins(self):
+		wallet_main = walletDB.Wallet(name_of_wallet='wallet_test.csv')
+		wallet_main.make_deposit(amount = 5, coin = 'BTC')
+		wallet_main.make_deposit(amount = 25, coin = 'BTC')
+		wallet_main.make_deposit(amount = 5, coin = 'LTC')
+
+		self.assertEqual(set([wallet_main.getTotalAmount(coin) for coin in ['BTC','LTC']]),set([30, 5]))
+
+	def testTypeShowCoins(self):
+		wallet_main = walletDB.Wallet(name_of_wallet='wallet_test.csv')
+		wallet_main.make_deposit(amount = 5, coin = 'BTC')
+		wallet_main.make_deposit(amount = 25, coin = 'BTC')
+		wallet_main.make_deposit(amount = 5, coin = 'LTC')
+
+		wallet_main.showCoins()
 
 
 if __name__ == '__main__':
