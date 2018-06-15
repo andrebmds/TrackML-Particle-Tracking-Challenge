@@ -5,15 +5,12 @@ import os
 class WalletTestCase(unittest.TestCase):
 	def setUp(self):
 		""" setUp is called before every test"""
-		# self.wallet_main = walletDB.Wallet()
 		# To make the tests remove file test initial to 
 		# not interfiring whit tests
 		try:
 			os.remove(os.path.join('data','wallet_test.csv'))
-			# print('Remove file')
 		except:
 			pass
-		# 	print('File don\'t exist: ')
 
 	def tearDown(self):
 		'''tearDown is called at the end of every test'''
@@ -23,6 +20,7 @@ class WalletTestCase(unittest.TestCase):
 		'''All methods beginning with 'test' are executed'''
 		wallet_main = walletDB.Wallet(name_of_wallet='wallet_test.csv')
 		wallet_main.make_deposit(amount = 10, coin = 'BTC')
+		
 		self.assertEqual(wallet_main.wallet['coin'].count(), 1, 'Number of row should be 1')
 
 	def testCheckColumnsName(self):
@@ -81,14 +79,15 @@ class WalletTestCase(unittest.TestCase):
 
 		wallet_main3 = walletDB.Wallet(name_of_wallet='wallet_test.csv')
 		wallet_main3.make_deposit(amount = 5, coin = 'BTC')
-		# print(wallet_main3.wallet)
 		total = wallet_main3.getTotalAmount('BTC')
+		
 		self.assertEqual(total, 15, 'Is\'n {} return correct value'.format(total))
 
 	def testListOfCoins(self):
 		wallet_main = walletDB.Wallet(name_of_wallet='wallet_test.csv')
 		wallet_main.make_deposit(amount = 5, coin = 'BTC')
 		wallet_main.make_deposit(amount = 5, coin = 'LTC')
+		
 		self.assertEqual(set(wallet_main.showCoins()), set(['BTC','LTC']), 'Output of cois is different of expept')
 
 	def testReadMultipleCoins(self):
@@ -99,14 +98,24 @@ class WalletTestCase(unittest.TestCase):
 
 		self.assertEqual(set([wallet_main.getTotalAmount(coin) for coin in ['BTC','LTC']]),set([30, 5]))
 
-	def testTypeShowCoins(self):
+	def testShowHistory(self):
+		wallet_main = walletDB.Wallet(name_of_wallet='wallet_test.csv')
+		wallet_main.make_deposit(amount = 5, coin = 'BTC')
+		wallet_main.make_deposit(amount = 25, coin = 'BTC')
+		wallet_main.make_deposit(amount = 5, coin = 'LTC')
+		first = wallet_main.showHistoryAmount('BTC')['totalAmount'].iloc[0]
+		second = wallet_main.showHistoryAmount('BTC')['totalAmount'].iloc[1]
+		self.assertEqual(first, 5)
+		self.assertEqual(second, 30)
+	
+	def testNormalizeHistory(self):
 		wallet_main = walletDB.Wallet(name_of_wallet='wallet_test.csv')
 		wallet_main.make_deposit(amount = 5, coin = 'BTC')
 		wallet_main.make_deposit(amount = 25, coin = 'BTC')
 		wallet_main.make_deposit(amount = 5, coin = 'LTC')
 
-		wallet_main.showCoins()
-
+		normalize = wallet_main.normalize('amount')
+		
 
 if __name__ == '__main__':
 	# run all TestCase's in this module
